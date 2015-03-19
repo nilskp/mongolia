@@ -6,6 +6,7 @@
 Mongolia
 ========
 Type safe Scala DSL for MongoDB, that has 3 simple goals:
+
 1. Type-safety. Prevent runtime exceptions by allowing only BSON types or types that can be converted to BSON.
 2. Fix the Java driver's UUID bug in a backwards compatible manner.
 3. Keep syntax close to original Javascript 
@@ -18,7 +19,7 @@ import BsonCodecs._
 val personId = new ObjectId
 
 val person = obj(
-  _id(personId),
+  _id(personId), // equivalent to "_id" := personId
   "name" := obj(
     "first" := "Francis",
     "middle" := "Joseph",
