@@ -31,7 +31,7 @@ val person = obj(
 coll.insert(person)
 
 coll.findOpt(_id(personId)) match {
-  case None => sys.error(s"Not found: $myId")
+  case None => sys.error(s"Not found: $personId")
   case Some(person) =>
     val firstName: String = person("name.first").as[String]
     val middleName: Option[String] = person("name.middle").opt[String]
