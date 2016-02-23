@@ -345,23 +345,21 @@ object BsonCodecs {
     }
   }
 
-  implicit def GeoPointCdc: Codec[GeoPoint, BsonValue] = GeoCdc
-  private[this] val GeoCdc = new Codec[GeoPoint, BsonValue] {
-    def encode(a: GeoPoint): BsonValue = {
+  implicit def GeoPointCdc: Codec[geo.Point, BsonValue] = GeoCdc
+  private[this] val GeoCdc = new Codec[geo.Point, BsonValue] {
+    def encode(a: geo.Point): BsonValue = {
       val dbo = geo2Dbo(a)
-      if (a.radius > 0f) dbo.add("radius" := a.radius)
       dbo: BsonValue
     }
-    def decode(b: BsonValue): GeoPoint = b.raw match {
+    def decode(b: BsonValue): geo.Point = b.raw match {
       case coords: java.util.List[Number] if coords.size == 2 =>
-        new GeoPoint(coords.get(1).doubleValue, coords.get(0).doubleValue)
+        new geo.Point(coords.get(1).doubleValue, coords.get(0).doubleValue)
       case dbo: DBObject =>
         val coords = dbo.getAs[java.util.List[Number]]("coordinates")
-        val radius: Float = dbo("radius").opt[Float].getOrElse(0f)
-        new GeoPoint(coords.get(1).doubleValue, coords.get(0).doubleValue, radius)
+        new geo.Point(coords.get(1).doubleValue, coords.get(0).doubleValue)
       case Array(longitude: Double, latitude: Double) =>
-        new GeoPoint(latitude = latitude, longitude = longitude)
-      case _ => throwCoercionException(b.raw, "GeoPoint")
+        new geo.Point(latitude = latitude, longitude = longitude)
+      case _ => throwCoercionException(b.raw, "geo.Point")
     }
   }
 

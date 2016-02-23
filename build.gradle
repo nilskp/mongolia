@@ -1,5 +1,5 @@
 plugins {
-    id "com.jfrog.bintray" version "1.1"
+    id "com.jfrog.bintray" version "1.5"
 }
 
 apply plugin: "scala"
@@ -9,7 +9,7 @@ version = "0.9.0-SNAPSHOT"
 
 def bintrayVersion = {
     if (version.endsWith('-SNAPSHOT')) {
-        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat('yyyyMMddHHmm')
+        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat('yyMMddHHmm')
         format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone('UTC')))
         return version.replace('SNAPSHOT', format.format(new Date()))
     } else {
@@ -18,7 +18,7 @@ def bintrayVersion = {
 }()
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.3"
+    gradleVersion = "2.11"
 }
 
 repositories {
@@ -36,10 +36,12 @@ jar {
 }
 
 task sourceJar(type: Jar) {
+    baseName "mongolia_2.11"
     classifier "sources"
     from sourceSets.main.allScala
 }
 task docsJar(type: Jar, dependsOn: scaladoc) {
+    baseName "mongolia_2.11"
     classifier "docs"
     from scaladoc.destinationDir
 }
@@ -81,9 +83,9 @@ bintray {
 dependencies {
     testCompile "junit:junit:4.11"
 
-    compile "org.scala-lang:scala-library:2.11.6"
-    compile "nilskp:scuff_2.11:0.1.4-SNAPSHOT-201503181634"
-    compile "org.mongodb:mongo-java-driver:2.12.5"
+    compile "org.scala-lang:scala-library:2.11.7"
+    compile "nilskp:scuff_2.11:0.1.5-b1602191540"
+    compile "org.mongodb:mongo-java-driver:2.14.1"
 }
 
 compileScala {

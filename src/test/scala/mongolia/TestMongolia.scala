@@ -9,7 +9,9 @@ import org.junit.Assert._
 import org.junit.Test
 import com.mongodb.DBObject
 import BsonCodecs._
-import scuff.{Codec, GeoPoint, ResourcePool, Timestamp}
+import scuff.{Codec, Timestamp}
+import scuff.geo
+import scuff.concurrent.ResourcePool
 import scuff.js.CoffeeScriptCompiler
 import com.mongodb.DBCollection
 
@@ -73,12 +75,11 @@ class TestMongolia {
 
   @Test
   def geoPoint {
-    val gp = GeoPoint.parse("35.027311, -111.023075", 1.23f).get
+    val gp = geo.Point.parse("35.027311, -111.023075").get
     val dbo = obj("location" := gp)
-    assertEquals("""{"location":{"type":"Point","coordinates":[-111.023075,35.027311],"radius":1.2300000190734863}}""", dbo.toJson())
-    assertEquals("""{"location":{"type":"Point","coordinates":[-111.023075,35.027311]}}""", obj("location" := gp.copy(radius = 0f)).toJson())
-    assertEquals("""{"location":{"$near":{"$geometry":{"type":"Point","coordinates":[-111.023075,35.027311]},"$maxDistance":1.2300000190734863}}}""", obj("location" := $near(gp)).toJson())
-    assertEquals("""{"location":{"$near":{"$geometry":{"type":"Point","coordinates":[-111.023075,35.027311]}}}}""", obj("location" := $near(gp.copy(radius = 0f))).toJson())
+    assertEquals("""{"location":{"type":"Point","coordinates":[-111.023075,35.027311]}}""", dbo.toJson())
+    assertEquals("""{"location":{"$near":{"$geometry":{"type":"Point","coordinates":[-111.023075,35.027311]},"$maxDistance":1.2300000190734863}}}""", obj("location" := $near(gp, 1.23f)).toJson())
+    assertEquals("""{"location":{"$near":{"$geometry":{"type":"Point","coordinates":[-111.023075,35.027311]}}}}""", obj("location" := $near(gp)).toJson())
   }
 
   @Test
@@ -384,18 +385,18 @@ reduce=$reduce
 
   @Test
   def `interface with Set` {
-    val codec = new Codec[GeoPoint, BsonValue] {
-      def encode(gp: GeoPoint): BsonValue = StrCdc.encode("%d %d".format(gp.latitude, gp.longitude))
-      def decode(str: BsonValue): GeoPoint = GeoPoint.parse(StrCdc.decode(str)).get
+    val codec = new Codec[geo.Point, BsonValue] {
+      def encode(gp: geo.Point): BsonValue = StrCdc.encode("%d %d".format(gp.latitude, gp.longitude))
+      def decode(str: BsonValue): geo.Point = geo.Point.parse(StrCdc.decode(str)).get
     }
     trait Foo {
-      def pts: Set[GeoPoint]
+      def pts: Set[geo.Point]
     }
     val doc = obj("pts" := arr("23.532 54.2342"))
     assertEquals("""{"pts":["23.532 54.2342"]}""", doc.toJson())
-    implicit val mapping: Map[Class[_], Codec[_, BsonValue]] = Map(classOf[GeoPoint] -> codec)
+    implicit val mapping: Map[Class[_], Codec[_, BsonValue]] = Map(classOf[geo.Point] -> codec)
     val foo = doc.like[Foo]
-    val set = Set(new GeoPoint(23.532, 54.2342))
+    val set = Set(new geo.Point(23.532, 54.2342))
     assertEquals(set, foo.pts)
   }
   @Test

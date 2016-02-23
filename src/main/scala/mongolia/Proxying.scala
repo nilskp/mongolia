@@ -41,7 +41,7 @@ private[mongolia] object Proxying {
     classOf[Number] -> BDCdc,
     classOf[EmailAddress] -> EmlCdc,
     classOf[Password] -> PwdCdc,
-    classOf[GeoPoint] -> GeoPointCdc,
+    classOf[geo.Point] -> GeoPointCdc,
     classOf[java.net.URL] -> UrlCdc,
     classOf[java.net.URI] -> UriCdc)
 

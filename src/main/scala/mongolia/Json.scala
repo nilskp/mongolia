@@ -5,7 +5,7 @@ import org.bson.types.ObjectId
 import java.util.UUID
 import org.bson.types.Binary
 import scuff.Base64
-import scuff.ResourcePool
+import scuff.concurrent.ResourcePool
 
 object Json {
 

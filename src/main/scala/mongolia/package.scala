@@ -27,7 +27,7 @@ package object mongolia {
   implicit def toAssignment(key: String) = new Assignment(key)
   implicit def toAssignment(key: scala.Symbol) = new Assignment(key.name)
 
-  private[mongolia] def geo2Dbo(gp: GeoPoint): BsonObject = obj("type" := "Point", "coordinates" := arr(gp.longitude: Double, gp.latitude: Double))
+  private[mongolia] def geo2Dbo(gp: geo.Point): BsonObject = obj("type" := "Point", "coordinates" := arr(gp.longitude: Double, gp.latitude: Double))
 
   private[mongolia] def any2Array[T](any: Any)(implicit codec: Codec[T, BsonValue], tag: ClassTag[T]): Array[T] = {
     val list: Iterable[_] = anyToIterable(any)
@@ -575,10 +575,10 @@ package object mongolia {
   def $pull(prop: BsonProp) = "$pull" := obj(prop)
   def $elemMatch(props: Seq[BsonProp]) = "$elemMatch" := obj(props)
   def $elemMatch(prop: BsonProp, more: BsonProp*) = "$elemMatch" := obj(prop, more: _*)
-  def $near(point: GeoPoint): BsonProp = {
+  def $near(point: geo.Point, maxDistance: Float = 0f): BsonProp = {
     val geoDbo = geo2Dbo(point)
     val near = obj("$geometry" := geoDbo)
-    if (point.radius > 0f) near("$maxDistance" := point.radius)
+    if (maxDistance > 0f) near("$maxDistance" := maxDistance)
     "$near" := near
   }
   def $regex(regex: String, options: String = "") = {
